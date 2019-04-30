@@ -137,7 +137,7 @@ class App extends Component {
       this.setState({response: info.map(v => {
         v.date = moment(v.date).format('DD-MM-YYYY, h:mm:ss a');
         return v;
-      })});
+      }).reverse()});
     });
   }
   
