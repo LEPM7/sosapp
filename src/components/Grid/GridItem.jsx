@@ -16,25 +16,30 @@
 
 */
 import React from "react";
-import ReactDOM from "react-dom";
-import { createBrowserHistory } from "history";
-import { Router, Route, Switch, Redirect } from "react-router-dom";
+// nodejs library to set properties for components
+import PropTypes from "prop-types";
+// @material-ui/core components
+import withStyles from "@material-ui/core/styles/withStyles";
+import Grid from "@material-ui/core/Grid";
 
-// core components
-import Admin from "layouts/Admin.jsx";
-import RTL from "layouts/RTL.jsx";
+const style = {
+  grid: {
+    padding: "0 15px !important"
+  }
+};
 
-import "assets/css/material-dashboard-react.css?v=1.7.0";
+function GridItem({ ...props }) {
+  const { classes, children, ...rest } = props;
+  return (
+    <Grid item {...rest} className={classes.grid}>
+      {children}
+    </Grid>
+  );
+}
 
-const hist = createBrowserHistory();
+GridItem.propTypes = {
+  classes: PropTypes.object,
+  children: PropTypes.node
+};
 
-ReactDOM.render(
-  <Router history={hist}>
-    <Switch>
-      <Route path="/admin" component={Admin} />
-      <Route path="/rtl" component={RTL} />
-      <Redirect from="/" to="/admin/dashboard" />
-    </Switch>
-  </Router>,
-  document.getElementById("root")
-);
+export default withStyles(style)(GridItem);
