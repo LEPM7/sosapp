@@ -57,6 +57,10 @@ import {
 } from "variables/charts.jsx";
 
 import dashboardStyle from "assets/jss/material-dashboard-react/views/dashboardStyle.jsx";
+import socketIOClient from "socket.io-client";
+import Button from '@material-ui/core/Button';
+import SOSMap from '../../components/SOSMap';
+import moment from 'moment';
 
 class Dashboard extends React.Component {
   state = {
@@ -69,230 +73,176 @@ class Dashboard extends React.Component {
   handleChangeIndex = index => {
     this.setState({ value: index });
   };
+
+  constructor() {
+    super();
+    this.state = {
+      response: [],
+      endpoint: "http://localhost:3002",
+      ambulances: {},
+      selectedLatitude: 14.5462773,
+      selectedLongitude: -90.4197275
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.ambulanceText = this.ambulanceText.bind(this);
+    this.createSaveButtons = this.createSaveButtons.bind(this);
+    this.createUbicationButton = this.createUbicationButton.bind(this);
+    this.saveButton = this.saveButton.bind(this);
+    this.finishTask = this.finishTask.bind(this);
+    this.changeLocation = this.changeLocation.bind(this);
+  }
+  
+  ambulanceText(cell, row, rowIndex, formatExtraData) {
+    if (!cell)
+      return <input type="text"
+                    placeholder="Ingrese numero de ambulancia"
+                    value={this.state.ambulances[rowIndex]}
+                    onChange={this.handleChange(rowIndex)} />
+    else {
+      return <div>{cell}</div>
+    }
+  };
+  
+  handleChange(rowIndex) {
+    return (event) => {
+      let ambulances = this.state.ambulances;
+      ambulances[rowIndex] = event.target.value;
+      this.setState({ambulances});
+    }
+  }
+  
+  createSaveButtons(cell, row, rowIndex, formatExtraData) {
+    switch(row.stats){
+      case "Waiting":
+        return (
+          <div className="saveButtonsDiv" >
+            <Button
+              variant="primary"  className="saveButtonsItems"
+              onClick={this.saveButton(row, rowIndex)} >
+save              {/* <FontAwesomeIcon icon="save" /> */}
+            </Button>
+            <Button variant="secondary"
+                    className="saveButtonsItems"
+                    onClick={this.finishTask(row)}>
+                      check
+              {/* <FontAwesomeIcon icon="check" /> */}
+            </Button>
+          </div>
+        );
+      case "InProcess":
+        return (
+          <div className="saveButtonsDiv" >
+            <Button variant="secondary"
+                    className="saveButtonsItems"
+                    onClick={this.finishTask(row)}>
+                      check
+              {/* <FontAwesomeIcon icon="check" /> */}
+            </Button>
+          </div>
+        );
+        break;
+      case "Finish":
+        return (
+          <div></div>
+        )
+    }
+  };
+  
+  createUbicationButton(cell, row, rowIndex, formatExtraData) {
+    return (
+      <div className="saveButtonsDiv" >
+        <Button variant="default" className="saveButtonsItems"
+          onClick={this.changeLocation(row.latitude, row.longitude)}
+        >
+         marker {/* <FontAwesomeIcon icon="map-marker-alt" /> ({row.latitude},{row.longitude}) */}
+        </Button>
+      </div>
+    )
+  };
+  
+  saveButton(row, rowIndex) {
+    return (event) => {
+      const id = row['_id'];
+      const carId = this.state.ambulances[rowIndex];
+      const {endpoint} = this.state;
+      const socket = socketIOClient(endpoint);
+      socket.emit('setCar', { id: id, carID: carId } );
+    }
+  }
+  
+  finishTask(row) {
+    return (event) => {
+      const id = row['_id'];
+      const {endpoint} = this.state;
+      const socket = socketIOClient(endpoint);
+      socket.emit('finishEmergency', { id: id } );
+    }
+  }
+  
+  changeLocation(lat, lng){
+    return (event) => {
+      this.setState({
+        selectedLatitude: lat,
+        selectedLongitude: lng
+      })
+    };
+  }
+  
+  componentDidMount() {
+    const {endpoint} = this.state;
+    const socket = socketIOClient(endpoint);
+    socket.on("news", data => {
+      let info = JSON.parse(data.data);
+      
+      this.setState({response: info.map(v => {
+        v.date = moment(v.date).format('DD-MM-YYYY, h:mm:ss a');
+        return v;
+      }).reverse()});
+    });
+  }
+
+  // <Table
+  //             tableHeaderColor="primary"
+  //             tableHead={["Name", "Country", "City", "Salary"]}
+  //             tableData={[
+  //               ["Dakota Rice", "Niger", "Oud-Turnhout", "$36,738"],
+  //               ["Minerva Hooper", "Curaçao", "Sinaai-Waas", "$23,789"],
+  //               ["Sage Rodriguez", "Netherlands", "Baileux", "$56,142"],
+  //               ["Philip Chaney", "Korea, South", "Overland Park", "$38,735"],
+  //               ["Doris Greene", "Malawi", "Feldkirchen in Kärnten", "$63,542"],
+  //               ["Mason Porter", "Chile", "Gloucester", "$78,615"]
+  //             ]}
+  //           />
+
   render() {
-    const { classes } = this.props;
+    let columns = [
+      {dataField: 'date', text: 'Fecha'},
+      {
+        dataField: '',
+        text: 'Ubicación',
+        formatter: this.createUbicationButton
+      },
+      {dataField: 'telefone', text: 'Telefono'},
+      {
+        dataField: 'ambulance',
+        text: 'Ambulancia',
+        formatter: this.ambulanceText,
+      },
+      {
+        dataField: '',
+        text: 'Opciones',
+        formatter: this.createSaveButtons,
+      }
+    ];
+   
     return (
       <div>
-        <GridContainer>
-          <GridItem xs={12} sm={6} md={3}>
-            <Card>
-              <CardHeader color="warning" stats icon>
-                <CardIcon color="warning">
-                  <Icon>content_copy</Icon>
-                </CardIcon>
-                <p className={classes.cardCategory}>Used Space</p>
-                <h3 className={classes.cardTitle}>
-                  49/50 <small>GB</small>
-                </h3>
-              </CardHeader>
-              <CardFooter stats>
-                <div className={classes.stats}>
-                  <Danger>
-                    <Warning />
-                  </Danger>
-                  <a href="#pablo" onClick={e => e.preventDefault()}>
-                    Get more space
-                  </a>
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={6} md={3}>
-            <Card>
-              <CardHeader color="success" stats icon>
-                <CardIcon color="success">
-                  <Store />
-                </CardIcon>
-                <p className={classes.cardCategory}>Revenue</p>
-                <h3 className={classes.cardTitle}>$34,245</h3>
-              </CardHeader>
-              <CardFooter stats>
-                <div className={classes.stats}>
-                  <DateRange />
-                  Last 24 Hours
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={6} md={3}>
-            <Card>
-              <CardHeader color="danger" stats icon>
-                <CardIcon color="danger">
-                  <Icon>info_outline</Icon>
-                </CardIcon>
-                <p className={classes.cardCategory}>Fixed Issues</p>
-                <h3 className={classes.cardTitle}>75</h3>
-              </CardHeader>
-              <CardFooter stats>
-                <div className={classes.stats}>
-                  <LocalOffer />
-                  Tracked from Github
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={6} md={3}>
-            <Card>
-              <CardHeader color="info" stats icon>
-                <CardIcon color="info">
-                  <Accessibility />
-                </CardIcon>
-                <p className={classes.cardCategory}>Followers</p>
-                <h3 className={classes.cardTitle}>+245</h3>
-              </CardHeader>
-              <CardFooter stats>
-                <div className={classes.stats}>
-                  <Update />
-                  Just Updated
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-        </GridContainer>
-        <GridContainer>
-          <GridItem xs={12} sm={12} md={4}>
-            <Card chart>
-              <CardHeader color="success">
-                <ChartistGraph
-                  className="ct-chart"
-                  data={dailySalesChart.data}
-                  type="Line"
-                  options={dailySalesChart.options}
-                  listener={dailySalesChart.animation}
-                />
-              </CardHeader>
-              <CardBody>
-                <h4 className={classes.cardTitle}>Daily Sales</h4>
-                <p className={classes.cardCategory}>
-                  <span className={classes.successText}>
-                    <ArrowUpward className={classes.upArrowCardCategory} /> 55%
-                  </span>{" "}
-                  increase in today sales.
-                </p>
-              </CardBody>
-              <CardFooter chart>
-                <div className={classes.stats}>
-                  <AccessTime /> updated 4 minutes ago
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={12} md={4}>
-            <Card chart>
-              <CardHeader color="warning">
-                <ChartistGraph
-                  className="ct-chart"
-                  data={emailsSubscriptionChart.data}
-                  type="Bar"
-                  options={emailsSubscriptionChart.options}
-                  responsiveOptions={emailsSubscriptionChart.responsiveOptions}
-                  listener={emailsSubscriptionChart.animation}
-                />
-              </CardHeader>
-              <CardBody>
-                <h4 className={classes.cardTitle}>Email Subscriptions</h4>
-                <p className={classes.cardCategory}>
-                  Last Campaign Performance
-                </p>
-              </CardBody>
-              <CardFooter chart>
-                <div className={classes.stats}>
-                  <AccessTime /> campaign sent 2 days ago
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-          <GridItem xs={12} sm={12} md={4}>
-            <Card chart>
-              <CardHeader color="danger">
-                <ChartistGraph
-                  className="ct-chart"
-                  data={completedTasksChart.data}
-                  type="Line"
-                  options={completedTasksChart.options}
-                  listener={completedTasksChart.animation}
-                />
-              </CardHeader>
-              <CardBody>
-                <h4 className={classes.cardTitle}>Completed Tasks</h4>
-                <p className={classes.cardCategory}>
-                  Last Campaign Performance
-                </p>
-              </CardBody>
-              <CardFooter chart>
-                <div className={classes.stats}>
-                  <AccessTime /> campaign sent 2 days ago
-                </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-        </GridContainer>
-        <GridContainer>
-          <GridItem xs={12} sm={12} md={6}>
-            <CustomTabs
-              title="Tasks:"
-              headerColor="primary"
-              tabs={[
-                {
-                  tabName: "Bugs",
-                  tabIcon: BugReport,
-                  tabContent: (
-                    <Tasks
-                      checkedIndexes={[0, 3]}
-                      tasksIndexes={[0, 1, 2, 3]}
-                      tasks={bugs}
-                    />
-                  )
-                },
-                {
-                  tabName: "Website",
-                  tabIcon: Code,
-                  tabContent: (
-                    <Tasks
-                      checkedIndexes={[0]}
-                      tasksIndexes={[0, 1]}
-                      tasks={website}
-                    />
-                  )
-                },
-                {
-                  tabName: "Server",
-                  tabIcon: Cloud,
-                  tabContent: (
-                    <Tasks
-                      checkedIndexes={[1]}
-                      tasksIndexes={[0, 1, 2]}
-                      tasks={server}
-                    />
-                  )
-                }
-              ]}
-            />
-          </GridItem>
-          <GridItem xs={12} sm={12} md={6}>
-            <Card>
-              <CardHeader color="warning">
-                <h4 className={classes.cardTitleWhite}>Employees Stats</h4>
-                <p className={classes.cardCategoryWhite}>
-                  New employees on 15th September, 2016
-                </p>
-              </CardHeader>
-              <CardBody>
-                <Table
-                  tableHeaderColor="warning"
-                  tableHead={["ID", "Name", "Salary", "Country"]}
-                  tableData={[
-                    ["1", "Dakota Rice", "$36,738", "Niger"],
-                    ["2", "Minerva Hooper", "$23,789", "Curaçao"],
-                    ["3", "Sage Rodriguez", "$56,142", "Netherlands"],
-                    ["4", "Philip Chaney", "$38,735", "Korea, South"]
-                  ]}
-                />
-              </CardBody>
-            </Card>
-          </GridItem>
-        </GridContainer>
+        <div className="container">
+          hola
+        </div>
+        <SOSMap lat={this.state.selectedLatitude} lng={this.state.selectedLongitude}/>
       </div>
+        
     );
   }
 }

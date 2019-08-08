@@ -34,7 +34,7 @@ import routes from "routes.js";
 import dashboardStyle from "assets/jss/material-dashboard-react/layouts/dashboardStyle.jsx";
 
 import image from "assets/img/sidebar-2.jpg";
-import logo from "assets/img/reactlogo.png";
+import logo from '../images/alarm.svg';
 
 let ps;
 
@@ -115,7 +115,7 @@ class Dashboard extends React.Component {
       <div className={classes.wrapper}>
         <Sidebar
           routes={routes}
-          logoText={"Creative Tim"}
+          logoText={"S.O.S"}
           logo={logo}
           image={this.state.image}
           handleDrawerToggle={this.handleDrawerToggle}
@@ -124,11 +124,6 @@ class Dashboard extends React.Component {
           {...rest}
         />
         <div className={classes.mainPanel} ref={this.mainPanel}>
-          <Navbar
-            routes={routes}
-            handleDrawerToggle={this.handleDrawerToggle}
-            {...rest}
-          />
           {/* On the /maps route we want the map to be on full screen - this is not possible if the content and conatiner classes are present because they have some paddings which would make the map smaller */}
           {this.getRoute() ? (
             <div className={classes.content}>
@@ -138,14 +133,6 @@ class Dashboard extends React.Component {
             <div className={classes.map}>{switchRoutes}</div>
           )}
           {this.getRoute() ? <Footer /> : null}
-          <FixedPlugin
-            handleImageClick={this.handleImageClick}
-            handleColorClick={this.handleColorClick}
-            bgColor={this.state["color"]}
-            bgImage={this.state["image"]}
-            handleFixedClick={this.handleFixedClick}
-            fixedClasses={this.state.fixedClasses}
-          />
         </div>
       </div>
     );
