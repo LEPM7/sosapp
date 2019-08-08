@@ -21,8 +21,8 @@ class SOSMap extends Component {
     const {lat, lng} = this.props;
     return (
       <Map zoom={13} center={[lat, lng]} style={{
-        width: '800px',
-        height: '400px',
+        width: 'auto',
+        height: '800px',
         textAlign: 'center'
       }}>
         <TileLayer
