@@ -24,6 +24,7 @@ import ChartistGraph from "react-chartist";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
 import LocationOn from "@material-ui/icons/LocationOn";
 import Send from "@material-ui/icons/Send";
 import Card from "components/Card/Card.jsx";
@@ -53,6 +54,7 @@ class Dashboard extends React.Component {
     this.state = {
       value: 0,
       response: [],
+      assignments: {},
       endpoint: "http://localhost:3002",
       ambulances: {},
       selectedLatitude: 14.5462773,
@@ -88,14 +90,12 @@ class Dashboard extends React.Component {
     };
   }
 
-
-  saveButton(row, rowIndex) {
+  saveButton(id, carID) {
     return event => {
-      const id = row["_id"];
-      const carId = this.state.ambulances[rowIndex];
       const { endpoint } = this.state;
       const socket = socketIOClient(endpoint);
-      socket.emit("setCar", { id: id, carID: carId });
+      socket.emit("setCar", { id, carID });
+      // console.log(id, carID);
     };
   }
 
@@ -132,21 +132,8 @@ class Dashboard extends React.Component {
       });
     });
   }
-
-  // <Table
-  //             tableHeaderColor="primary"
-  //             tableHead={["Name", "Country", "City", "Salary"]}
-  //             tableData={[
-  //               ["Dakota Rice", "Niger", "Oud-Turnhout", "$36,738"],
-  //               ["Minerva Hooper", "Curaçao", "Sinaai-Waas", "$23,789"],
-  //               ["Sage Rodriguez", "Netherlands", "Baileux", "$56,142"],
-  //               ["Philip Chaney", "Korea, South", "Overland Park", "$38,735"],
-  //               ["Doris Greene", "Malawi", "Feldkirchen in Kärnten", "$63,542"],
-  //               ["Mason Porter", "Chile", "Gloucester", "$78,615"]
-  //             ]}
-  //           />
-
   render() {
+    console.log(this.state.response);
     const classes = {
       cardTitle,
       cardSubtitle,
@@ -155,47 +142,91 @@ class Dashboard extends React.Component {
     const Cards = this.state.response.map(emergengy => (
       <Card>
         <CardBody>
-          <h3>{emergengy.telefone}</h3>
-          <h4>{emergengy.date}</h4>
-          <div style={({
-            display: 'flex',
-            direction: 'row',
-            justifyItems: 'flex-end',
-            alignItems: 'flex-end'
-          })}>
+          <h3>
+            <strong>Tel:&nbsp;</strong>
+            {emergengy.telefone}
+          </h3>
+          <h4>
+            <strong>Fecha:&nbsp;</strong>
+            {emergengy.date}
+          </h4>
+          { !emergengy.ambulance ? (
+            <TextField
+              id="outlined-name"
+              label="Número de ambulancia"
+              // value={emergengy.carID || ''}
+              onChange={event => {
+                const assignments = this.state.assignments;
+                assignments[emergengy._id] = event.target.value;
+                this.setState({ assignments });
+              }}
+              variant="outlined"
+              style={{ marginBottom: "15px" }}
+            />
+          ) : (
+            <h4>
+              <strong>Ambulancia:&nbsp;</strong>
+              {emergengy.ambulance}
+            </h4>
+          )}
+
+          <div
+            style={{
+              display: "flex",
+              direction: "row",
+              justifyItems: "flex-end",
+              alignItems: "flex-end"
+            }}
+          >
             <Button
               variant="contained"
-              color="primary.light"
               style={{ marginLeft: "auto", padding: "10px" }}
-              onClick={this.changeLocation(emergengy.latitude, emergengy.longitude)}
+              onClick={this.changeLocation(
+                emergengy.latitude,
+                emergengy.longitude
+              )}
             >
               ({emergengy.latitude},{emergengy.longitude})
               <LocationOn />
             </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              style={{ marginLeft: "auto", padding: "10px" }}
-            >
-              Asignar
-              <Send />
-            </Button>
+            {!emergengy.ambulance ? (
+              <Button
+                variant="contained"
+                color="primary"
+                style={{ marginLeft: "auto", padding: "10px" }}
+                onClick={this.saveButton(
+                  emergengy._id,
+                  this.state.assignments[emergengy._id]
+                )}
+                disabled={
+                  !(
+                    this.state.assignments[emergengy._id] &&
+                    this.state.assignments[emergengy._id] !== ""
+                  )
+                }
+              >
+                Asignar
+                <Send />
+              </Button>
+            ) : (
+              <div></div>
+            )}
           </div>
         </CardBody>
       </Card>
     ));
     return (
-        <Grid container spacing={3}>
-          <Grid item xs={4}>
-            {Cards}
-          </Grid>
-          <Grid item xs={8}>
-            <SOSMap
-              lat={this.state.selectedLatitude}
-              lng={this.state.selectedLongitude}
-            />
-          </Grid>
+      <Grid container spacing={3}>
+        <Grid item xs={4}>
+          <div style={{ maxHeight: 800, overflow: "auto" }}>{Cards}</div>
         </Grid>
+        <Grid item xs={8}>
+          <SOSMap
+            lat={this.state.selectedLatitude}
+            lng={this.state.selectedLongitude}
+          />
+        </Grid>
+      </Grid>
     );
   }
 }
