@@ -1,11 +1,11 @@
 import CognitoConfig from 'configs/Cognito.config';
 import Amplify, { Auth } from 'aws-amplify';
-import { async } from 'q';
-
 Amplify.configure(CognitoConfig);
 
 
 const auth = {
+    isAuthenticated: false,
+
     forgotPassword: async (username) => {
       try {
         const data = await Auth.forgotPassword(username);
