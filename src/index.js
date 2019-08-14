@@ -22,17 +22,29 @@ import { Router, Route, Switch, Redirect } from "react-router-dom";
 
 // core components
 import Admin from "layouts/Admin.jsx";
-import RTL from "layouts/RTL.jsx";
-
+import Login from "layouts/Login.jsx";
+import fakeAuth from "auth";
 import "assets/css/material-dashboard-react.css?v=1.7.0";
 
 const hist = createBrowserHistory();
 
+const PrivateRoute = ({ component: Component, ...rest }) => (
+  <Route {...rest} render={(props) => (
+    fakeAuth.isAuthenticated === true
+      ? <Component {...props} />
+      : <Redirect to={{
+          pathname: '/login',
+          state: { from: props.location }
+        }} />
+  )} />
+)
+
+
 ReactDOM.render(
   <Router history={hist}>
     <Switch>
-      <Route path="/admin" component={Admin} />
-      <Route path="/rtl" component={RTL} />
+      <PrivateRoute path="/admin" component={Admin} />
+      <Route path="/login" component={Login} />
       <Redirect from="/" to="/admin/dashboard" />
     </Switch>
   </Router>,
