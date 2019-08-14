@@ -23,14 +23,14 @@ import { Router, Route, Switch, Redirect } from "react-router-dom";
 // core components
 import Admin from "layouts/Admin.jsx";
 import Login from "layouts/Login.jsx";
-import fakeAuth from "auth";
+import { Auth } from 'aws-amplify';
 import "assets/css/material-dashboard-react.css?v=1.7.0";
 
 const hist = createBrowserHistory();
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route {...rest} render={(props) => (
-    fakeAuth.isAuthenticated === true
+    Auth.currentAuthenticatedUser()
       ? <Component {...props} />
       : <Redirect to={{
           pathname: '/login',
