@@ -23,6 +23,7 @@ import { Router, Route, Switch, Redirect } from "react-router-dom";
 // core components
 import Admin from "layouts/Admin.jsx";
 import Login from "layouts/Login.jsx";
+import SignUp from "layouts/SignUp.jsx";
 import auth from "auth";
 import "assets/css/material-dashboard-react.css?v=1.7.0";
 
@@ -45,6 +46,7 @@ ReactDOM.render(
     <Switch>
       <PrivateRoute path="/admin" component={Admin} />
       <Route path="/login" component={Login} />
+      <Route path="/signup" component={SignUp} />
       <Redirect from="/" to="/admin/dashboard" />
     </Switch>
   </Router>,

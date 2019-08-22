@@ -11,12 +11,14 @@ import Container from "@material-ui/core/Container";
 import logo from "../images/alarm.svg";
 import { withStyles } from "@material-ui/core/styles";
 
-class LogIn extends React.Component {
-  constructor(props) {
+
+class SignUp extends React.Component {
+  
+  constructor(props){
     super(props);
   }
 
-  render() {
+  render(){
     const { classes } = this.props;
     return (
       <Container component="main" maxWidth="sm">
@@ -30,32 +32,54 @@ class LogIn extends React.Component {
             Centro de gestión de emergencias
           </Typography>
           <form className={classes.form} noValidate>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
+            <Grid container spacing={2}>
+              {/* <Grid item xs={12} sm={6}>
+                <TextField
+                  autoComplete="fname"
+                  name="firstName"
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="firstName"
+                  label="First Name"
+                  autoFocus
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="lastName"
+                  label="Last Name"
+                  name="lastName"
+                  autoComplete="lname"
+                />
+              </Grid> */}
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email"
+                  name="email"
+                  autoComplete="email"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                />
+              </Grid>
+            </Grid>
             <Button
               type="submit"
               fullWidth
@@ -63,17 +87,12 @@ class LogIn extends React.Component {
               color="primary"
               className={classes.submit}
             >
-              Ingresar
+              Sign Up
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
+            <Grid container justify="flex-end">
               <Grid item>
-                <Link href="/signup" variant="body2">
-                  {"No tienes cuenta? Registrate"}
+                <Link href="/login" variant="body2">
+                  Ya tienes cuenta? Ingresa 
                 </Link>
               </Grid>
             </Grid>
@@ -84,7 +103,8 @@ class LogIn extends React.Component {
   }
 }
 
-export default withStyles(theme => ({
+
+export default withStyles( theme => ({
   paper: {
     backgroundColor: "white",
     marginTop: theme.spacing(8),
@@ -104,4 +124,4 @@ export default withStyles(theme => ({
   submit: {
     margin: theme.spacing(3, 0, 2)
   }
-}))(LogIn);
+}))(SignUp);
