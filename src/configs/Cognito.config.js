@@ -1,7 +1,9 @@
 const CognitoConfig = {
     Auth: {
         identityPoolID: '',
-        region: ''
+        region: '',
+        userPoolId: '',
+        userPoolWebClientId: ''
     }
 }
 

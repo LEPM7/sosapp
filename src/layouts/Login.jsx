@@ -10,10 +10,29 @@ import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import logo from "../images/alarm.svg";
 import { withStyles } from "@material-ui/core/styles";
+import auth from "../auth";
 
 class LogIn extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      email: "",
+      password: ""
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({ [event.target.name]: event.target.value });
+  }
+
+  handleSubmit(event) {
+    auth
+      .signIn(this.state.email, this.state.password)
+      .then(s => console.log("success", s))
+      .catch(e => console.trace("error", e));
+    event.preventDefault();
   }
 
   render() {
@@ -29,7 +48,11 @@ class LogIn extends React.Component {
           <Typography component="h1" variant="h5">
             Centro de gestión de emergencias
           </Typography>
-          <form className={classes.form} noValidate>
+          <form
+            className={classes.form}
+            noValidate
+            onSubmit={this.handleSubmit}
+          >
             <TextField
               variant="outlined"
               margin="normal"
@@ -40,6 +63,8 @@ class LogIn extends React.Component {
               name="email"
               autoComplete="email"
               autoFocus
+              value={this.state["email"]}
+              onChange={this.handleChange}
             />
             <TextField
               variant="outlined"
@@ -51,6 +76,8 @@ class LogIn extends React.Component {
               type="password"
               id="password"
               autoComplete="current-password"
+              value={this.state["password"]}
+              onChange={this.handleChange}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}

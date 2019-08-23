@@ -1,24 +1,46 @@
 import React from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
-// import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import logo from "../images/alarm.svg";
 import { withStyles } from "@material-ui/core/styles";
+import auth from "../auth";
+import { withRouter } from 'react-router-dom'
 
 
 class SignUp extends React.Component {
   
-  constructor(props){
+  constructor(props) {
     super(props);
+    this.state = {
+      email: "",
+      password: "",
+      error: false
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  render(){
+  handleChange(event) {
+    this.setState({ [event.target.name]: event.target.value });
+  }
+
+  async handleSubmit(event) {
+    auth.signUp(this.state.email, this.state.password)
+        .then(s => {
+          console.log('success', s);
+          this.props.history.push('/admin/dashboard');
+        })
+        .catch(e => {
+          this.setState({error: true})
+        });
+    event.preventDefault();
+  }
+
+  render() {
     const { classes } = this.props;
     return (
       <Container component="main" maxWidth="sm">
@@ -31,7 +53,11 @@ class SignUp extends React.Component {
           <Typography component="h1" variant="h5">
             Centro de gestión de emergencias
           </Typography>
-          <form className={classes.form} noValidate>
+          <form
+            className={classes.form}
+            noValidate
+            onSubmit={this.handleSubmit}
+          >
             <Grid container spacing={2}>
               {/* <Grid item xs={12} sm={6}>
                 <TextField
@@ -64,7 +90,11 @@ class SignUp extends React.Component {
                   id="email"
                   label="Email"
                   name="email"
+                  type="email"
                   autoComplete="email"
+                  value={this.state["email"]}
+                  onChange={this.handleChange}
+                  error={this.state.error}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -77,6 +107,9 @@ class SignUp extends React.Component {
                   type="password"
                   id="password"
                   autoComplete="current-password"
+                  value={this.state["password"]}
+                  onChange={this.handleChange}
+                  error={this.state.error}
                 />
               </Grid>
             </Grid>
@@ -87,12 +120,12 @@ class SignUp extends React.Component {
               color="primary"
               className={classes.submit}
             >
-              Sign Up
+              Registrate
             </Button>
             <Grid container justify="flex-end">
               <Grid item>
                 <Link href="/login" variant="body2">
-                  Ya tienes cuenta? Ingresa 
+                  Ya tienes cuenta? Ingresa
                 </Link>
               </Grid>
             </Grid>
@@ -103,8 +136,7 @@ class SignUp extends React.Component {
   }
 }
 
-
-export default withStyles( theme => ({
+export default withRouter(withStyles(theme => ({
   paper: {
     backgroundColor: "white",
     marginTop: theme.spacing(8),
@@ -124,4 +156,4 @@ export default withStyles( theme => ({
   submit: {
     margin: theme.spacing(3, 0, 2)
   }
-}))(SignUp);
+}))(SignUp));
