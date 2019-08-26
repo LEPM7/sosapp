@@ -38,6 +38,7 @@ const auth = {
     try {
       await Auth.signOut();
       localStorage.setItem('auth', false);
+      return true;
     }catch(e){
       console.trace(e);
     }
