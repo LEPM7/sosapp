@@ -12,6 +12,7 @@ import logo from "../images/alarm.svg";
 import { withStyles } from "@material-ui/core/styles";
 import auth from "../auth";
 import { withRouter } from 'react-router-dom';
+import { Redirect } from "react-router-dom";
 
 class LogIn extends React.Component {
   constructor(props) {
@@ -43,6 +44,11 @@ class LogIn extends React.Component {
 
   render() {
     const { classes } = this.props;
+    console.log(localStorage.getItem('auth'));
+    if(localStorage.getItem('auth') == 'true'){
+      return (<Redirect to="/admin/dashboard"/>)
+    }
+    else
     return (
       <Container component="main" maxWidth="sm">
         {/* <CssBaseline /> */}
@@ -99,11 +105,11 @@ class LogIn extends React.Component {
               Ingresar
             </Button>
             <Grid container>
-              <Grid item xs>
+              {/* <Grid item xs>
                 <Link href="#" variant="body2">
                   Forgot password?
                 </Link>
-              </Grid>
+              </Grid> */}
               <Grid item>
                 <Link href="/signup" variant="body2">
                   {"No tienes cuenta? Registrate"}

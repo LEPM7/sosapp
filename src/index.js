@@ -31,7 +31,7 @@ const hist = createBrowserHistory();
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route {...rest} render={(props) => (
-    auth.isAuthenticated === true
+    localStorage.getItem('auth') == 'true'
       ? <Component {...props} />
       : <Redirect to={{
           pathname: '/login',
