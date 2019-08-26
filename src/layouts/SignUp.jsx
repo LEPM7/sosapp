@@ -8,7 +8,7 @@ import Container from "@material-ui/core/Container";
 import logo from "../images/alarm.svg";
 import { withStyles } from "@material-ui/core/styles";
 import auth from "../auth";
-import { withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom';
 
 
 class SignUp extends React.Component {

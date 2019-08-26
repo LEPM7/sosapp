@@ -11,6 +11,7 @@ import Container from "@material-ui/core/Container";
 import logo from "../images/alarm.svg";
 import { withStyles } from "@material-ui/core/styles";
 import auth from "../auth";
+import { withRouter } from 'react-router-dom';
 
 class LogIn extends React.Component {
   constructor(props) {
@@ -30,8 +31,13 @@ class LogIn extends React.Component {
   handleSubmit(event) {
     auth
       .signIn(this.state.email, this.state.password)
-      .then(s => console.log("success", s))
-      .catch(e => console.trace("error", e));
+      .then(s => {
+        console.log('success', s);
+        this.props.history.push('/admin/dashboard');
+      })
+      .catch(e => {
+        this.setState({error: true})
+      });
     event.preventDefault();
   }
 
@@ -111,7 +117,7 @@ class LogIn extends React.Component {
   }
 }
 
-export default withStyles(theme => ({
+export default withRouter(withStyles(theme => ({
   paper: {
     backgroundColor: "white",
     marginTop: theme.spacing(8),
@@ -131,4 +137,4 @@ export default withStyles(theme => ({
   submit: {
     margin: theme.spacing(3, 0, 2)
   }
-}))(LogIn);
+}))(LogIn));
