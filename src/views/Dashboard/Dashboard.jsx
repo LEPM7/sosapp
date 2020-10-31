@@ -27,8 +27,8 @@ class Dashboard extends React.Component {
     this.setState({ value: index });
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       value: 0,
       response: [],
@@ -89,7 +89,7 @@ class Dashboard extends React.Component {
     const { endpoint } = this.state;
     let intervalId = setInterval(this.timer, 1000);
     this.setState({intervalId: intervalId});
-    new Emergency().getEmergencies().then(emergencies => this.setState({response: emergencies})).catch(console.error);
+    new Emergency().getEmergenciesByState(this.props.status).then(emergencies => this.setState({response: emergencies})).catch(console.error);
   }
 
   componentWillUnmount() {

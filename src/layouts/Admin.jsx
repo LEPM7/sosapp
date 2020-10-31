@@ -45,7 +45,10 @@ const switchRoutes = (
         return (
           <Route
             path={prop.layout + prop.path}
-            component={prop.component}
+            render={(props) => {
+                let AuxComponent = prop.component;
+                return <AuxComponent {...props} status={prop.status} />
+            }}
             key={key}
           />
         );
