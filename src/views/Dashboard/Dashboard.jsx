@@ -11,12 +11,14 @@ import CardBody from "components/Card/CardBody.jsx";
 import dashboardStyle from "assets/jss/material-dashboard-react/views/dashboardStyle.jsx";
 import SOSMap from "../../components/SOSMap";
 import Emergency from "../../services/emergency";
+import moment from 'moment';
 
 import {
   cardTitle,
   cardSubtitle,
   cardLink
 } from "assets/jss/material-dashboard-react.jsx";
+import { TramRounded } from "@material-ui/icons";
 
 class Dashboard extends React.Component {
   handleChange = (event, value) => {
@@ -63,9 +65,21 @@ class Dashboard extends React.Component {
     };
   }
 
-  saveButton = (id, carID) => {
+  saveButton = (emergency, id, carID) => {
     return event => {
       const { endpoint } = this.state;
+      this.setState({updating:true});
+      console.log(emergency);
+      new Emergency().updateEmergency({
+        ...emergency, 
+        ambulance: this.state.assignments[id],
+        state: 'ONROAD'
+      })
+      .then(_ => this.setState({updating:false}))
+      .catch(e => {
+        this.setState({updating:false})
+        console.error(e);
+      });
     };
   }
 
@@ -89,7 +103,6 @@ class Dashboard extends React.Component {
     const { endpoint } = this.state;
     let intervalId = setInterval(this.timer, 1000);
     this.setState({intervalId: intervalId});
-    new Emergency().getEmergenciesByState(this.props.status).then(emergencies => this.setState({response: emergencies})).catch(console.error);
   }
 
   componentWillUnmount() {
@@ -97,8 +110,8 @@ class Dashboard extends React.Component {
  }
  
   timer = () => {
-    // setState method is used to update the state
-    this.setState({ currentCount: this.state.currentCount -1 });
+    if(!this.state.updating)
+      new Emergency().getEmergenciesByState(this.props.status).then(emergencies => this.setState({response: emergencies})).catch(console.error);
   }
 
   render() {
@@ -114,10 +127,13 @@ class Dashboard extends React.Component {
           <h3>
             <strong>Tel:&nbsp;</strong>
             {emergengy.contactPhone}
+            &nbsp;&nbsp;&nbsp;
+            <strong>ID:&nbsp;</strong>
+            {emergengy.id}
           </h3>
           <p>
             <strong>Fecha:&nbsp;</strong>
-            {emergengy.date}
+            {moment(emergengy.date).format('DD-MM-YYYY, h:mm:ss a')}
           </p>
           { !emergengy.ambulance ? (
             <TextField
@@ -164,6 +180,7 @@ class Dashboard extends React.Component {
                 color="primary"
                 style={{ marginLeft: "auto", padding: "10px" }}
                 onClick={this.saveButton(
+                  emergengy,
                   emergengy._id,
                   this.state.assignments[emergengy._id]
                 )}

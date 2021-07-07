@@ -16,7 +16,7 @@ const dashboardRoutes = [
     icon: Dashboard,
     component: DashboardPage,
     layout: "/admin",
-    status: "PENDING"
+    status: "ONROAD"
   },
   {
     path: "/dashboard/finished",
@@ -24,7 +24,7 @@ const dashboardRoutes = [
     icon: Dashboard,
     component: DashboardPage,
     layout: "/admin",
-    status: "FINISHED"
+    status: "FULFILLED"
   },
 ];
 
